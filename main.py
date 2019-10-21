@@ -1,8 +1,7 @@
 from TTT4 import TTT4
 from agent import Agent
 import numpy as np
-# import tensorflow.keras.backend as K
-# K.clear_session()
+from collections import deque
 
 
 def get_state(board, player):
@@ -18,6 +17,7 @@ def get_state(board, player):
 def get_next_state(board, player, ai):
     board_l = TTT4()
     board_l.board = board
+    board_l.player = player
     state = get_state(board, player)
     ret = board_l.play(ai.act(state))
     if 'invalid' in ret:
@@ -41,10 +41,14 @@ def get_reward(ret):
     return reward
 
 
-def main():
-    student = Agent(17, 16)
+def run(trial, memory):
+    try:
+        student = Agent(17, 16, model_name=name)
+    except:
+        student = Agent(17, 16)
+    student.memory = memory if memory else student.memory
     game_n = 0
-    while True:
+    for _ in range(trial):
         board = TTT4()
         end = False
         game_n += 1
@@ -53,24 +57,34 @@ def main():
             state = get_state(board.board[:], int(player_turn))
             action = student.act(np.array(state))
             ret = board.play(action)
-            if 'invalid' in ret:
-                i = 0
-                while 'invalid' in ret and i < 16:
-                    ret = board.play(i)
-                    i += 1
             reward = get_reward(ret)
+            if 'invalid' in ret:
+                student.memory.append([state, action, reward, state][:])
+                student.exp_replay()
+                continue
             next_state = get_next_state(board.board[:], int(board.player), student)
             if next_state:
                 student.memory.append([state, action, reward, next_state][:])
 
-            print(f'{game_n}: {board.played}/16 {action} {ret}: player {player_turn}')
+            print(f'{game_n}: {board.played}/16 {action} {ret}: player {player_turn-1}')
+            board.print_board()
+
             if 'win' in ret or 'draw' in ret:
-                board.print_board()
                 end = True
         student.exp_replay()
+        student.model.save(f'keras_model/{name}.h5')
+    return student.memory
 
-        student.model.save(f'keras_model/game{game_n}')
 
+name = 'ai1'
+try:
+    mem = deque(maxlen=1000)
+    for i in np.load('mem.npy', allow_pickle=True):
+        mem.append(i)
+except:
+    mem = deque(maxlen=1000)
 
-if __name__ == '__main__':
-    main()
+print(len(mem))
+mem = run(1, mem)
+np.save('mem', mem)
+
