@@ -35,7 +35,7 @@ def get_next_state(board, player, ai):
 def get_reward(ret):
     reward = 0
     if 'win' in ret:
-        reward = 100000000
+        reward = 1
     elif 'invalid' in ret:
         reward = -1
     return reward
@@ -69,27 +69,25 @@ def run(trial, memory):
         board = TTT4()
         end = False
         game_n += 1
-        student.epsilon_min = (len(student.memory)-1500)/1500
+        student.epsilon = 1 - (len(student.memory)/10000)
         while not end:
             player_turn = int(board.player)
             current_board = board.board[:]
             state = get_state(current_board, player_turn)
             action = student.act(np.array(state))
             ret = board.play(action)
-            events = get_events(state, current_board, player_turn, student.model) if 'invalid' in ret else []
+            events = get_events(state, current_board, player_turn, student.model) if 'invalid' in ret or 'win' in ret else []
 
             for event in events:
                 student.memory.append(event)
                 if 'win' in ret:
-                    student.memory[-17][2] = -1 if event[2] != 100000000 else 500
+                    student.memory[-17][2] = -1 if event[2] != 1 else 0.7
                     student.memory[-17][3] = None
-                    print('xxxxx', student.memory[-17])
-
-            if 'invalid' in ret:
-                break
 
             print(f'{game_n}: {board.played}/16 {action} {ret}: player {player_turn-1}')
             board.print_board()
+            if 'invalid' in ret:
+                break
 
             if 'win' in ret or 'draw' in ret:
                 end = True
@@ -100,14 +98,14 @@ def run(trial, memory):
 
 name = 'ai1'
 try:
-    mem = deque(maxlen=3000)
+    mem = deque(maxlen=10000)
     for i in np.load('mem.npy', allow_pickle=True):
         mem.append(i)
 except:
-    mem = deque(maxlen=3000)
+    mem = deque(maxlen=10000)
 
 print(len(mem))
 
-mem = run(10, mem)
+mem = run(1, mem)
 np.save('mem', mem)
 
