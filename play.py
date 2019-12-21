@@ -14,7 +14,7 @@ def get_state(board_l, player):
 
 
 name = 'ai1'
-model = load_model(f'keras_model/{name}.h5')
+model = load_model(f'keras_model/{name}')
 board = TTT4()
 end = False
 while not end:

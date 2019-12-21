@@ -11,7 +11,7 @@ def get_state(board, player):
     else:
         state = board[:]
         state.append(1)
-    return [state]
+    return np.array([state])
 
 
 def get_next_state(board, player, ai):
@@ -50,62 +50,52 @@ def get_events(state, board, player, ai):
         ret = new_board.play(i)
         reward = get_reward(ret)
         if 'invalid' in ret or 'win' in ret:
-            events_l.append([state, i, reward, None][:])
+            events_l.append([state, i, reward, None, True][:])
             continue
 
         next_state = get_next_state(new_board.board[:], int(new_board.player), ai)
-        events_l.append([state, i, reward, next_state][:])
+        events_l.append([state, i, reward, next_state, False][:])
     return events_l
 
 
-def run(trial, memory):
+def run(games, memory):
     try:
         student = Agent(17, 16, model_name=name)
     except:
         student = Agent(17, 16)
     student.memory = memory if memory else student.memory
     game_n = 0
-    for _ in range(trial):
-        board = TTT4()
-        end = False
-        game_n += 1
-        student.epsilon = 1 - (len(student.memory)/10000)
-        while not end:
-            player_turn = int(board.player)
-            current_board = board.board[:]
-            state = get_state(current_board, player_turn)
-            action = student.act(np.array(state))
-            ret = board.play(action)
-            events = get_events(state, current_board, player_turn, student.model) if 'invalid' in ret or 'win' in ret else []
+    while True:
+        for _ in range(games):
+            board = TTT4()
+            end = False
+            game_n += 1
+            # student.epsilon = 1 - (len(student.memory)/10000)
+            while not end:
+                player_turn = int(board.player)
+                current_board = board.board[:]
+                state = get_state(current_board, player_turn)
+                action = student.act(np.array(state))
+                ret = board.play(action)
+                events = get_events(state, current_board, player_turn, student.model)
+                student.memory.append(events)
+                # for event in events:
+                #     student.memory.append(event)
+                #     if 'win' in ret:
+                #         student.memory[-17][2] = -1 if event[2] != 1 else 0.7
+                #         student.memory[-17][3] = None
 
-            for event in events:
-                student.memory.append(event)
-                if 'win' in ret:
-                    student.memory[-17][2] = -1 if event[2] != 1 else 0.7
-                    student.memory[-17][3] = None
+                print(f'{game_n}: {board.played}/16 {action} {ret}: player {player_turn-1}')
+                board.print_board()
+                if 'invalid' in ret:
+                    break
 
-            print(f'{game_n}: {board.played}/16 {action} {ret}: player {player_turn-1}')
-            board.print_board()
-            if 'invalid' in ret:
-                break
-
-            if 'win' in ret or 'draw' in ret:
-                end = True
-    student.exp_replay()
-    student.model.save(f'keras_model/{name}.h5')
-    return student.memory
+                if 'win' in ret or 'draw' in ret:
+                    end = True
+        student.exp_replay()
+        student.model.save(f'keras_model/{name}')
 
 
 name = 'ai1'
-try:
-    mem = deque(maxlen=10000)
-    for i in np.load('mem.npy', allow_pickle=True):
-        mem.append(i)
-except:
-    mem = deque(maxlen=10000)
-
-print(len(mem))
-
-mem = run(1, mem)
-np.save('mem', mem)
+run(1, None)
 
