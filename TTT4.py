@@ -14,7 +14,6 @@ class TTT4:
             else:
                 c_board.append(-100)
         win_condition = 4 if self.player == 1 else -4
-
         if ((c_board[0] + c_board[1] + c_board[2] + c_board[3]) == win_condition or
                 (c_board[4] + c_board[5] + c_board[6] + c_board[7]) == win_condition or
                 (c_board[8] + c_board[9] + c_board[10] + c_board[11]) == win_condition or

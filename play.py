@@ -13,7 +13,7 @@ def get_state(board_l, player):
     return [state_l]
 
 
-name = 'ai1'
+name = '100.14'
 model = load_model(f'keras_model/{name}')
 board = TTT4()
 end = False
@@ -32,5 +32,6 @@ while not end:
         print(ret)
 
     if 'win' in ret or 'draw' in ret:
+        print(ret)
         board.print_board()
         end = True

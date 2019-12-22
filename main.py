@@ -1,6 +1,7 @@
 from TTT4 import TTT4
 from agent import Agent
 import numpy as np
+import random
 from collections import deque
 
 
@@ -32,10 +33,12 @@ def get_next_state(board, player, ai):
     return get_state(next_board, next_player)
 
 
-def get_reward(ret):
+def get_reward(ret, ret2):
     reward = 0
     if 'win' in ret:
         reward = 1
+    elif 'win' in ret2:
+        reward = .75
     elif 'invalid' in ret:
         reward = -1
     return reward
@@ -46,10 +49,14 @@ def get_events(state, board, player, ai):
     for i in range(len(board)):
         new_board = TTT4()
         new_board.board = board[:]
-        new_board.player = int(player)
+        new_board.player = player
         ret = new_board.play(i)
-        reward = get_reward(ret)
-        if 'invalid' in ret or 'win' in ret:
+        new_board = TTT4()
+        new_board.board = board[:]
+        new_board.player = 1 if player == 2 else 2
+        ret2 = new_board.play(i)
+        reward = get_reward(ret, ret2)
+        if 'invalid' in ret or 'win' in ret or 'draw' in ret or 'win' in ret2:
             events_l.append([state, i, reward, None, True][:])
             continue
 
@@ -70,21 +77,18 @@ def run(games, memory):
             board = TTT4()
             end = False
             game_n += 1
-            # student.epsilon = 1 - (len(student.memory)/10000)
+            turn = 0
             while not end:
                 player_turn = int(board.player)
                 current_board = board.board[:]
                 state = get_state(current_board, player_turn)
-                action = student.act(np.array(state))
+                if turn == 0:
+                    action = random.randrange(16)
+                else:
+                    action = student.act(np.array(state))
                 ret = board.play(action)
                 events = get_events(state, current_board, player_turn, student.model)
                 student.memory.append(events)
-                # for event in events:
-                #     student.memory.append(event)
-                #     if 'win' in ret:
-                #         student.memory[-17][2] = -1 if event[2] != 1 else 0.7
-                #         student.memory[-17][3] = None
-
                 print(f'{game_n}: {board.played}/16 {action} {ret}: player {player_turn-1}')
                 board.print_board()
                 if 'invalid' in ret:
@@ -92,6 +96,7 @@ def run(games, memory):
 
                 if 'win' in ret or 'draw' in ret:
                     end = True
+                turn += 1
         student.exp_replay()
         student.model.save(f'keras_model/{name}')
 

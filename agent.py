@@ -23,6 +23,7 @@ class Agent:
 		if model_name:
 			print('loading model')
 			self.model = load_model(f'keras_model/{model_name}')
+			# self.epsilon = 0
 		else:
 			print('fail to load model, creating new model')
 			self.model = self.model()
@@ -44,27 +45,32 @@ class Agent:
 			if random.random() <= self.epsilon:
 				return random.randrange(self.action_size)
 		option = self.model.predict(state)
-		print(np.round(option[0][0:4]))
-		print(np.round(option[0][4:8]))
-		print(np.round(option[0][8:12]))
-		print(np.round(option[0][12:16]))
+		print(np.round(option[0][0:4], 2))
+		print(np.round(option[0][4:8], 2))
+		print(np.round(option[0][8:12], 2))
+		print(np.round(option[0][12:16], 2))
 
 		return np.argmax(option)
 
 	def exp_replay(self):
 		states = []
 		target_fs = []
+		weights = []
+		rule = 0
+		win = 0
 		for event in self.memory:
 			state = event[0][0]
 			target_f = self.model.predict(state)
+			max_reward = 0
 			for i, [_, action, reward, next_state, done] in enumerate(event):
+				max_reward = reward if reward > max_reward else max_reward
 				if done:
 					target = reward
 				else:
-					target = reward  # + (self.gamma * max(self.model.predict(next_state)[0]))
+					target = min(reward + (self.gamma * max(self.model.predict(next_state)[0])), 1)
 				target_f[0][action] = target
 				if i == 15:
 					states.append(np.array(state[0][:]))
 					target_fs.append(np.array(target_f[0][:]))
-			# print(state, target_f)
-		self.model.fit([states], [target_fs], epochs=1, verbose=2, batch_size=64)
+			weights.append(100 if max_reward > .5 else 1)
+		self.model.fit([states], [target_fs], sample_weight=np.array(weights), epochs=1, verbose=2, batch_size=64)
