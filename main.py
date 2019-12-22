@@ -36,11 +36,11 @@ def get_next_state(board, player, ai):
 def get_reward(ret, ret2):
     reward = 0
     if 'win' in ret:
-        reward = 1
+        reward += 1
     elif 'win' in ret2:
-        reward = .75
+        reward += .75
     elif 'invalid' in ret:
-        reward = -1
+        reward += -1
     return reward
 
 
@@ -49,12 +49,12 @@ def get_events(state, board, player, ai):
     for i in range(len(board)):
         new_board = TTT4()
         new_board.board = board[:]
-        new_board.player = player
-        ret = new_board.play(i)
-        new_board = TTT4()
-        new_board.board = board[:]
         new_board.player = 1 if player == 2 else 2
         ret2 = new_board.play(i)
+        new_board = TTT4()
+        new_board.board = board[:]
+        new_board.player = player
+        ret = new_board.play(i)
         reward = get_reward(ret, ret2)
         if 'invalid' in ret or 'win' in ret or 'draw' in ret or 'win' in ret2:
             events_l.append([state, i, reward, None, True][:])
@@ -65,12 +65,8 @@ def get_events(state, board, player, ai):
     return events_l
 
 
-def run(games, memory):
-    try:
-        student = Agent(17, 16, model_name=name)
-    except:
-        student = Agent(17, 16)
-    student.memory = memory if memory else student.memory
+def run(games=1):
+    student = Agent(17, 16, model_name=name)
     game_n = 0
     while True:
         for _ in range(games):
@@ -98,9 +94,9 @@ def run(games, memory):
                     end = True
                 turn += 1
         student.exp_replay()
-        student.model.save(f'keras_model/{name}')
+        if game_n % 100 == 0:
+            student.model.save(f'keras_model/{name}+{str(int(game_n))}')
 
 
-name = 'ai1'
-run(1, None)
-
+name = 'ai3'
+run()

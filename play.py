@@ -13,7 +13,7 @@ def get_state(board_l, player):
     return [state_l]
 
 
-name = '100.14'
+name = 'ai3+500'
 model = load_model(f'keras_model/{name}')
 board = TTT4()
 end = False
@@ -35,3 +35,9 @@ while not end:
         print(ret)
         board.print_board()
         end = True
+'''
+0  1  2  3
+4  5  6  7
+8  9  10 11
+12 13 14 15
+'''
