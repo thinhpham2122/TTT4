@@ -12,6 +12,7 @@ Edit 'name' in play.py to change AI model\
 run play.py\
 enter in location to play\
 location table:\
+
 |x|x|x|x|
 |---|---|---|---|---|
 |0|1|2|3|
