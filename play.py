@@ -41,6 +41,7 @@ while not end:
         if 'draw' in ret:
             print('draw')
     if 'win' in ret or 'draw' in ret:
+        board.print_board()
         end = True
 '''
 0  1  2  3
