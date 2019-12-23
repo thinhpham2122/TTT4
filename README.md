@@ -7,15 +7,15 @@ Game win condition: get 4 in a row in a 4 x 4 grid
 
 To play
 ------
-Edit 'first' in play.py to change first player
-Edit 'name' in play.py to change AI model
-run play.py
-enter in location to play
-location table:
- 0| 1| 2| 3
- 4| 5| 6| 7
- 8| 9|10|11
-12|13|14|15
+Edit 'first' in play.py to change first player\
+Edit 'name' in play.py to change AI model\
+run play.py\
+enter in location to play\
+location table:\
+ 0| 1| 2| 3\
+ 4| 5| 6| 7\
+ 8| 9|10|11\
+12|13|14|15\
 
 Requirement
 ------
