@@ -12,21 +12,25 @@ class Agent:
 	def __init__(self, state_size, action_size, model_name=None):
 		self.state_size = state_size
 		self.action_size = action_size
-		self.memory = deque(maxlen=1000)
-		self.high_memory = deque(maxlen=3000)
+		self.memory = deque(maxlen=15000)
+		self.high_memory = deque(maxlen=15000)
 		self.inventory = []
 		self.model_name = model_name
 
-		self.gamma = 0.6
+		self.gamma = 0.9
 		self.epsilon = 1.0
 		self.epsilon_decay = 0.995
 		self.epsilon_min = .25
 		if model_name:
-			print('loading model')
-			self.model = load_model(f'keras_model/{model_name}')
-			self.epsilon = 0
+			try:
+				print('loading model')
+				self.model = load_model(f'keras_model/{model_name}')
+				self.epsilon = 0
+			except:
+				print('fail to load model, creating new model')
+				self.model = self.model()
 		else:
-			print('fail to load model, creating new model')
+			print('creating new model')
 			self.model = self.model()
 
 	def model(self):
@@ -41,7 +45,6 @@ class Agent:
 		return model
 
 	def act(self, state):
-		# print(self.epsilon , self.epsilon_min)
 		if self.epsilon > self.epsilon_min:
 			self.epsilon *= self.epsilon_decay
 			if random.random() <= self.epsilon:
@@ -82,7 +85,7 @@ class Agent:
 				if done:
 					target = reward
 				else:
-					target = reward  # min(reward + (self.gamma * max(self.model.predict(next_state)[0])), 1)
+					target = min(reward + (self.gamma * max(self.model.predict(next_state)[0])), 1)
 				target_f[0][action] = target
 				if i == 15:
 					states.append(np.array(state[0][:]))

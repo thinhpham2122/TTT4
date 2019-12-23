@@ -5,9 +5,9 @@ class TTT4:
         self.played = 0
 
     def check_status(self):
-        c_board = []
         self.played = 0
-        for location in self.board:
+        c_board = []
+        for i, location in enumerate(self.board):
             if location:
                 c_board.append(location)
                 self.played += 1
@@ -32,11 +32,10 @@ class TTT4:
 
     def play(self, location):
         action = -1 if self.player == 1 else 1
-        if self.board[location]:
+        if location < 0 or location > 15 or self.board[location]:
             return 'invalid'
         self.board[location] = action
         self.player = 1 if self.player == 2 else 2
-        self.played += 1
         return self.check_status()
 
     def print_board(self):
@@ -44,7 +43,9 @@ class TTT4:
         for location in self.board:
             if location:
                 if location == -1:
-                    location = 0
+                    location = 'o'
+                if location == 1:
+                    location = 'x'
                 p_board.append(location)
             else:
                 p_board.append('.')

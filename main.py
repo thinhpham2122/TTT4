@@ -33,39 +33,45 @@ def get_next_state(board, player, ai):
     return get_state(next_board, next_player)
 
 
-def get_reward(ret, ret2):
-    reward = 0
+def get_reward(ret, block_location, current_location):
     if 'win' in ret:
-        reward += 1
-    elif 'win' in ret2:
-        reward += .75
+        return 1
     elif 'invalid' in ret:
-        reward += -1
-    return reward
+        return -1
+    elif block_location != -1:
+        if block_location == current_location:
+            return 0
+        else:
+            return -1
+    else:
+        return 0
 
 
 def get_events(state, board, player, ai):
     events_l = []
+    block_location = -1
     for i in range(len(board)):
         new_board = TTT4()
         new_board.board = board[:]
         new_board.player = 1 if player == 2 else 2
         ret2 = new_board.play(i)
+        if 'win' in ret2:
+            block_location = i
+    for i in range(len(board)):
         new_board = TTT4()
         new_board.board = board[:]
         new_board.player = player
         ret = new_board.play(i)
-        reward = get_reward(ret, ret2)
-        if 'invalid' in ret or 'win' in ret or 'draw' in ret or 'win' in ret2:
+        reward = get_reward(ret, block_location, i)
+        if 'invalid' in ret or 'win' in ret or 'draw' in ret or block_location != -1:
             events_l.append([state, i, reward, None, True][:])
             continue
-
         next_state = get_next_state(new_board.board[:], int(new_board.player), ai)
         events_l.append([state, i, reward, next_state, False][:])
     return events_l
 
 
-def run(games=1):
+def run(games=16):
     student = Agent(17, 16, model_name=name)
     game_n = 0
     while True:
@@ -94,9 +100,9 @@ def run(games=1):
                     end = True
                 turn += 1
         student.exp_replay()
-        if game_n % 100 == 0:
-            student.model.save(f'keras_model/{name}+{str(int(game_n))}')
+        if game_n % 80 == 0:
+            student.model.save(f'keras_model/{name}_{str(int(game_n))}')
 
 
-name = 'ai3'
+name = 'ai1_1600'
 run()
