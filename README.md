@@ -13,7 +13,7 @@ run play.py\
 enter in location to play\
 location table:\
 
-|x|x|x|x|
+|C1|C2|C3|C4|
 |---|---|---|---|---|
 |0|1|2|3|
 |4|5|6|7|
