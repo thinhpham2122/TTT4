@@ -13,16 +13,23 @@ def get_state(board_l, player):
     return [state_l]
 
 
-name = 'AI_model'
+name = 'Ai_model2'
 first = 1  # 1:ai first, 2:human first
 model = load_model(f'keras_model/{name}')
 board = TTT4()
 end = False
+print_output = False
 while not end:
     player_turn = board.player
     if player_turn == first:
         state = get_state(board.board[:], int(player_turn))
-        action = np.argmax(model.predict(np.array(state)))
+        output = model.predict(np.array(state))
+        if print_output:
+            print(np.round(output[0][0:4], 2))
+            print(np.round(output[0][4:8], 2))
+            print(np.round(output[0][8:12], 2))
+            print(np.round(output[0][12:16], 2))
+        action = np.argmax(output)
         ret = board.play(action)
         if 'invalid' in ret:
             print('Invalid move. AI lose')
