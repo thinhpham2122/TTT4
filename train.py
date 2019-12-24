@@ -30,43 +30,30 @@ def get_next_state(board, player, ai):
         return None
     next_board = board_l.board
     next_player = board_l.player
-    return get_state(next_board, next_player)
+    return get_state(next_board, next_player), ret
 
 
-def get_reward(ret, block_location, current_location):
+def get_reward(ret, next_ret):
     if 'win' in ret:
         return 1
-    elif 'invalid' in ret:
+    elif 'invalid' in ret or 'win' in next_ret:
         return -1
-    elif block_location != -1:
-        if block_location == current_location:
-            return 0
-        else:
-            return -1
     else:
         return 0
 
 
 def get_events(state, board, player, ai):
     events_l = []
-    block_location = -1
-    for i in range(len(board)):
-        new_board = TTT4()
-        new_board.board = board[:]
-        new_board.player = 1 if player == 2 else 2
-        ret2 = new_board.play(i)
-        if 'win' in ret2:
-            block_location = i
     for i in range(len(board)):
         new_board = TTT4()
         new_board.board = board[:]
         new_board.player = player
         ret = new_board.play(i)
-        reward = get_reward(ret, block_location, i)
         if 'invalid' in ret or 'win' in ret or 'draw' in ret or block_location != -1:
             events_l.append([state, i, reward, None, True][:])
             continue
-        next_state = get_next_state(new_board.board[:], int(new_board.player), ai)
+        next_state, next_ret = get_next_state(new_board.board[:], int(new_board.player), ai)
+        reward = get_reward(ret, next_ret)
         events_l.append([state, i, reward, next_state, False][:])
     return events_l
 
