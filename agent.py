@@ -19,13 +19,13 @@ class Agent:
 
 		self.gamma = 0.9
 		self.epsilon = 1.0
-		self.epsilon_decay = 0.995
+		self.epsilon_decay = 0.9999
 		self.epsilon_min = .25
 		if model_name:
 			try:
 				print('loading model')
 				self.model = load_model(f'keras_model/{model_name}')
-				self.epsilon = 0
+				# self.epsilon = 0
 			except:
 				print('fail to load model, creating new model')
 				self.model = self.model()
@@ -48,7 +48,11 @@ class Agent:
 		if self.epsilon > self.epsilon_min:
 			self.epsilon *= self.epsilon_decay
 			if random.random() <= self.epsilon:
-				return random.randrange(self.action_size)
+				empty_index = []
+				for i in range(16):
+					if not state[0][i]:
+						empty_index.append(i)
+				return empty_index[random.randrange(len(empty_index))]
 		option = self.model.predict(state)
 		print(np.round(option[0][0:4], 2))
 		print(np.round(option[0][4:8], 2))
@@ -94,4 +98,5 @@ class Agent:
 				self.high_memory.append(event)
 		# for i in zip(states, target_fs):
 		# 	print(i)
-		self.model.fit([states], [target_fs], epochs=1, verbose=2, batch_size=64)
+		print(f'memory:{len(self.memory)} high:{len(self.high_memory)}')
+		self.model.fit([states], [target_fs], epochs=1, verbose=2, batch_size=256)

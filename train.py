@@ -99,10 +99,11 @@ def run(games=16):
                 if 'win' in ret or 'draw' in ret:
                     end = True
                 turn += 1
-        student.exp_replay()
+        if len(student.memory) > 5000:
+            student.exp_replay()
         if game_n % 80 == 0:
             student.model.save(f'keras_model/{name}_{str(int(game_n))}')
 
 
-name = 'ai1_1600'
+name = 'base'
 run()
