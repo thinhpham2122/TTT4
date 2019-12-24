@@ -22,12 +22,11 @@ def get_next_state(board, player, ai):
     state = get_state(board, player)
     ret = board_l.play(np.argmax(ai.predict(state)))
     if 'invalid' in ret:
-        i = 0
-        while 'invalid' in ret and i < 16:
-            ret = board_l.play(i)
-            i += 1
-    if 'invalid' in ret:
-        return None
+        empty_index = []
+	for i in range(len(board)):
+            if not board[i]:
+                empty_index.append(i)
+        ret = board_l.play(empty_index[random.randrange(len(empty_index)))
     next_board = board_l.board
     next_player = board_l.player
     return get_state(next_board, next_player), ret
@@ -49,7 +48,7 @@ def get_events(state, board, player, ai):
         new_board.board = board[:]
         new_board.player = player
         ret = new_board.play(i)
-        if 'invalid' in ret or 'win' in ret or 'draw' in ret or block_location != -1:
+        if 'invalid' in ret or 'win' in ret or 'draw' in ret:
             events_l.append([state, i, reward, None, True][:])
             continue
         next_state, next_ret = get_next_state(new_board.board[:], int(new_board.player), ai)
