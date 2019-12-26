@@ -13,7 +13,7 @@ def get_state(board_l, player):
     return [state_l]
 
 
-name = 'Ai_model2'
+name = 'base_4000'
 first = 1  # 1:ai first, 2:human first
 model = load_model(f'keras_model/{name}')
 board = TTT4()
