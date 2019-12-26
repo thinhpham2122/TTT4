@@ -30,7 +30,7 @@ Create an AI using deep Q-learning to master this game.
 
 Training reward system
 ------
-Moves that are invalid and loses the game are given -1 as reward. Moves that win the game are given 1 as reward. All other moves are given 0 as reward.
+Moves that are invalid, lose the game, or miss a win are given -1 as reward. Moves that win the game are given 1 as reward. All other moves are given 0 as reward.
 
 Result
 ------
