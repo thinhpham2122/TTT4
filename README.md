@@ -35,3 +35,4 @@ Moves that are invalid, lose the game, or miss a win are given -1 as reward. Mov
 Result
 ------
 After training overnight, it learned to plays valid moves, block other player from wining, and win when there is 3 in a line. However, there is little evident of it planning several moves ahead. This model did not master the game, and there is room for improvement.
+Also, the game does not have much complexity for strategy development. Checkout the improved version of the game:  https://github.com/yuichan2122/TTT5
